@@ -55,7 +55,8 @@ public:
 
 	void init(bool json_output,
 		  bool json_include_output_property,
-		  uint32_t rate, uint32_t max_burst, bool buffered);
+		  uint32_t rate, uint32_t max_burst, bool buffered,
+		  bool time_format_iso_8601);
 
 	void add_output(output_config oc);
 
@@ -80,6 +81,7 @@ private:
 	token_bucket m_notifications_tb;
 
 	bool m_buffered;
+	bool m_time_format_iso_8601;
 
 	std::string m_lua_add_output = "add_output";
 	std::string m_lua_output_event = "output_event";
