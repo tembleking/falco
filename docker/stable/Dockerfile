@@ -100,4 +100,4 @@ COPY ./docker-entrypoint.sh /
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-CMD ["/usr/bin/falco"]
+CMD ["/usr/bin/falco", "-o", "time_format_iso_8601=true"]
