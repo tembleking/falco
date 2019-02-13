@@ -159,6 +159,8 @@ class FalcoTest(Test):
         if self.run_tags == '':
             self.run_tags=[]
 
+        self.time_iso_8601 = self.params.get('time_iso_8601', '*', default=False)
+
     def tearDown(self):
         if self.package != 'None':
             self.uninstall_package()
@@ -384,6 +386,9 @@ class FalcoTest(Test):
 
         if self.all_events:
             cmd += ' -A'
+
+        if self.time_iso_8601:
+            cmd += ' -o time_format_iso_8601=true'
 
         self.falco_proc = process.SubProcess(cmd)
 

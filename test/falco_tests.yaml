@@ -771,3 +771,13 @@ trace_files: !mux
     rules_file:
       - rules/engine_version_mismatch.yaml
     trace_file: trace_files/cat_write.scap
+
+  time_iso_8601:
+    time_iso_8601: true
+    detect: True
+    detect_level: WARNING
+    rules_file:
+      - rules/single_rule.yaml
+    trace_file: trace_files/cat_write.scap
+    stdout_contains: "2016-08-04T16:17:57.882054739\\+0000: Warning An open was seen"
+    stderr_contains: "^\\d\\d\\d\\d-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d\\+0000"
