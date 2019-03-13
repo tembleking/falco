@@ -22,9 +22,9 @@ spec:
 # This allows Falco to run on Google COS.
 # Leave blank for the default probe location, or set to the path
 # of a precompiled probe.
-#          env:
-#          - name: SYSDIG_BPF_PROBE
-#            value: ""
+          # env:
+          # - name: SYSDIG_BPF_PROBE
+          #  value: ""
           args: [ "/usr/bin/falco", "-K", "/var/run/secrets/kubernetes.io/serviceaccount/token", "-k", "https://kubernetes.default", "-pk"]
           volumeMounts:
             - mountPath: /host/var/run/docker.sock
@@ -48,6 +48,35 @@ spec:
               readOnly: true
             - mountPath: /etc/falco
               name: falco-config
+            - mountPath: /var/run/falco/
+              name: shared-pipe
+              readOnly: false
+        - name: falco-pubsub
+          image: sysdiglabs/falco-pubsub:latest
+          imagePullPolicy: Always
+          args: [ "/bin/falco-pubsub" ]
+          volumeMounts:
+            - mountPath: /var/run/falco/
+              name: shared-pipe
+          env:
+            - name: GOOGLE_PROJECT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: google-data
+                  key: project-id
+            - name: GOOGLE_CREDENTIALS_DATA
+              valueFrom:
+                secretKeyRef:
+                  name: google-data
+                  key: credentials-data
+      initContainers:
+        - name: init-pipe
+          image: busybox
+          command: ['mkfifo','/var/run/falco/nats']
+          volumeMounts:
+          - mountPath: /var/run/falco/
+            name: shared-pipe
+            readOnly: false
       volumes:
         - name: docker-socket
           hostPath:
@@ -73,3 +102,5 @@ spec:
         - name: falco-config
           configMap:
             name: falco-config
+        - name: shared-pipe
+          emptyDir: {}
