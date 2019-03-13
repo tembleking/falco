@@ -182,6 +182,41 @@ void falco_configuration::init(string conf_filename, list<string> &cmdline_optio
 	m_webserver_k8s_audit_endpoint = m_config->get_scalar<string>("webserver", "k8s_audit_endpoint", "/k8s_audit");
 	m_webserver_ssl_enabled = m_config->get_scalar<bool>("webserver", "ssl_enabled", false);
 	m_webserver_ssl_certificate = m_config->get_scalar<string>("webserver", "ssl_certificate","/etc/falco/falco.pem");
+
+	std::list<string> overflow_acts;
+	m_config->get_sequence(overflow_acts, "kernel_buffer_overflow", "actions");
+
+	for(std::string &act : overflow_acts)
+	{
+		if(act == "ignore")
+		{
+			m_overflow_actions.insert(overflow_mgr::ACT_IGNORE);
+		}
+		else if (act == "log")
+		{
+			m_overflow_actions.insert(overflow_mgr::ACT_LOG);
+		}
+		else if (act == "alert")
+		{
+			m_overflow_actions.insert(overflow_mgr::ACT_ALERT);
+		}
+		else if (act == "exit")
+		{
+			m_overflow_actions.insert(overflow_mgr::ACT_EXIT);
+		}
+		else
+		{
+			throw invalid_argument("Error reading config file (" + m_config_file + "): overflow action " + act + " must be one of \"ignore\", \"log\", \"alert\", or \"exit\"");
+		}
+	}
+
+	if(m_overflow_actions.empty())
+	{
+		m_overflow_actions.insert(overflow_mgr::ACT_IGNORE);
+	}
+
+	m_overflow_rate = m_config->get_scalar<double>("kernel_buffer_overflow", "rate", 0.3333);
+	m_overflow_max_burst = m_config->get_scalar<double>("kernel_buffer_overflow", "max_burst", 10);
 }
 
 void falco_configuration::read_rules_file_directory(const string &path, list<string> &rules_filenames)

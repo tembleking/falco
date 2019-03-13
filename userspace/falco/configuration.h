@@ -26,8 +26,10 @@ limitations under the License.
 #include <string>
 #include <vector>
 #include <list>
+#include <set>
 #include <iostream>
 
+#include "overflow.h"
 #include "falco_outputs.h"
 
 class yaml_configuration
@@ -209,6 +211,10 @@ class falco_configuration
 	std::string m_webserver_k8s_audit_endpoint;
 	bool m_webserver_ssl_enabled;
 	std::string m_webserver_ssl_certificate;
+	std::set<overflow_mgr::action> m_overflow_actions;
+	double m_overflow_rate;
+	double m_overflow_max_burst;
+
 
  private:
 	void init_cmdline_options(std::list<std::string> &cmdline_options);
